@@ -24,9 +24,11 @@ const useUserStore = create((set) => ({
         confirmPassword,
       });
       set({ user: res.data.user, loading: false });
+      toast.success("User created successfully");
     } catch (error) {
       set({ loading: false });
       console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
   login: async (email, password) => {
@@ -37,9 +39,11 @@ const useUserStore = create((set) => ({
 
       set({ user: res.data.user, loading: false });
       useCartStore.getState().getCartItems();
+      if (res?.data?.user?.role === "admin") toast.success("welcome admin");
+      else toast.success("Logged in successfuly");
     } catch (error) {
       set({ loading: false });
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 
@@ -48,8 +52,9 @@ const useUserStore = create((set) => ({
       await axios.post("/api/auth/logout");
       set({ user: null });
       useCartStore.getState().clearCart();
+      toast.success("Logged out of your account");
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 
@@ -61,6 +66,8 @@ const useUserStore = create((set) => ({
       useCartStore.getState().getCartItems();
     } catch (error) {
       console.log(error.message);
+      console.log(error);
+
       set({ checkingAuth: false, user: null });
       useCartStore.getState().clearCart();
     }
@@ -76,7 +83,7 @@ const useUserStore = create((set) => ({
       set({ loading: false });
       toast.success("Reset Password Link has been sent to your email");
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
   resetPassword: async (password, confirmPassword, token) => {
@@ -90,7 +97,7 @@ const useUserStore = create((set) => ({
       set({ loading: false });
       toast.success("Your password has been reset");
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 }));

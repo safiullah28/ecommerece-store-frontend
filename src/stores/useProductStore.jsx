@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
+import { toast } from "react-hot-toast";
 
 export const useProductStore = create((set) => ({
   products: [],
@@ -14,9 +15,10 @@ export const useProductStore = create((set) => ({
         products: [...prevState.products, res.data],
         loading: false,
       }));
+      toast.success("Product created");
     } catch (error) {
       set({ loading: false });
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 
@@ -31,9 +33,11 @@ export const useProductStore = create((set) => ({
 
         loading: false,
       }));
+      toast.success("Product deleted");
     } catch (error) {
       set({ loading: false });
       console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 
@@ -51,7 +55,7 @@ export const useProductStore = create((set) => ({
       }));
     } catch (error) {
       set({ loading: false });
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 
@@ -62,7 +66,7 @@ export const useProductStore = create((set) => ({
       set({ products: response.data, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch products", loading: false });
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
   fetchProductsByCategory: async (category) => {
@@ -72,7 +76,7 @@ export const useProductStore = create((set) => ({
       set({ products: response.data, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch products", loading: false });
-      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   },
 
@@ -82,8 +86,8 @@ export const useProductStore = create((set) => ({
       const res = await axios.get("/api/products/featuredProducts");
       set({ products: res.data, loading: false });
     } catch (error) {
-      console.log(error);
       set({ error: "Failed to fetch products", loading: false });
+      toast.error(error?.response?.data?.message);
     }
   },
 }));
