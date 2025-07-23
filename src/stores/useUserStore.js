@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { useCartStore } from "./useCartStore";
 
-const useUserStore = create((set, get) => ({
+const useUserStore = create((set) => ({
   user: null,
   loading: false,
   checkingAuth: true,
@@ -35,6 +36,7 @@ const useUserStore = create((set, get) => ({
       const res = await axios.post("/api/auth/login", { email, password });
 
       set({ user: res.data.user, loading: false });
+      useCartStore.getState().getCartItems();
     } catch (error) {
       set({ loading: false });
       console.log(error);
@@ -45,6 +47,7 @@ const useUserStore = create((set, get) => ({
     try {
       await axios.post("/api/auth/logout");
       set({ user: null });
+      useCartStore.getState().clearCart();
     } catch (error) {
       console.log(error);
     }
@@ -55,26 +58,14 @@ const useUserStore = create((set, get) => ({
     try {
       const response = await axios.get("/api/auth/profile");
       set({ user: response.data, checkingAuth: false });
+      useCartStore.getState().getCartItems();
     } catch (error) {
       console.log(error.message);
       set({ checkingAuth: false, user: null });
+      useCartStore.getState().clearCart();
     }
   },
 
-  refreshToken: async () => {
-    // Prevent multiple simultaneous refresh attempts
-    if (get().checkingAuth) return;
-
-    set({ checkingAuth: true });
-    try {
-      const response = await axios.post("/api/auth/refreshToken");
-      set({ checkingAuth: false });
-      return response.data;
-    } catch (error) {
-      set({ user: null, checkingAuth: false });
-      throw error;
-    }
-  },
   forgotPassword: async (email) => {
     set({ loading: true });
 
